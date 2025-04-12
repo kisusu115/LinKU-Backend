@@ -1,11 +1,11 @@
 name: Java CI with Gradle
 
-# 동작 조건 설정 : main, develop 브랜치에 push 혹은 pull request가 발생할 경우 동작
+# 동작 조건 설정 : feat/#2-ci-cd-system 브랜치에 push 혹은 pull request가 발생할 경우 동작
 on:
   push:
-    branches: [ "main", "feat/#2-ci-cd-system" ]
+    branches: [ "feat/#2-ci-cd-system" ]
   pull_request:
-    branches: [ "main", "feat/#2-ci-cd-system" ]
+    branches: [ "feat/#2-ci-cd-system" ]
 
 permissions:
   contents: read
