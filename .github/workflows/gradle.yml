@@ -1,6 +1,6 @@
 name: Java CI with Gradle
 
-# 동작 조건 설정 : main, feat/#2-ci-cd-system 브랜치에 push 혹은 pull request가 발생할 경우 동작
+# 동작 조건 설정 : main, develop 브랜치에 push 혹은 pull request가 발생할 경우 동작
 on:
   push:
     branches: [ "main", "feat/#2-ci-cd-system" ]
@@ -16,6 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    
+    # 0. 권한 부여 단계 추가
+    - name: Grant execute permission to gradlew
+      shell: bash
+      run: chmod +x ./gradlew
+    
     # 1. Java 17 세팅
     - name: Set up JDK 17
       uses: actions/setup-java@v3
