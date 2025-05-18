@@ -2,13 +2,14 @@ package com.linku.backend.domain.icon;
 
 import com.linku.backend.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "icons")
-@Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter @Setter
 public class Icon extends BaseEntity {
 
     @Id
