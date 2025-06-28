@@ -1,22 +1,32 @@
 package com.linku.backend.domain.icon;
 
 import com.linku.backend.domain.BaseEntity;
+import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "icons")
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter @Setter
 public class Icon extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long iconId;
 
     private String name;
 
-    private String url;
+    private String imageUrl; // S3 링크
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User owner; // null이면 default 아이콘
+
+    private LocalDateTime deletedAt;
+
+    private Boolean isDefault = false;
 }
