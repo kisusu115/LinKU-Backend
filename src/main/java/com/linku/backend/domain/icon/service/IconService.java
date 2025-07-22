@@ -69,7 +69,7 @@ public class IconService {
     }
 
     public IconResponseDTO renameIcon(Long iconId, String newName) {
-        Icon icon = iconRepository.findById(iconId)
+        Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
 
         Long userId = getCurrentUserId();
@@ -86,7 +86,7 @@ public class IconService {
     }
 
     public void deleteIcon(Long iconId) {
-        Icon icon = iconRepository.findById(iconId)
+        Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
 
         Long userId = getCurrentUserId();
