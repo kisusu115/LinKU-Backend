@@ -1,35 +1,34 @@
 package com.linku.backend.domain.template;
 
 import com.linku.backend.domain.BaseEntity;
-import com.linku.backend.domain.icon.Icon;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "template_items")
-@Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter @Setter
 public class TemplateItem extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long templateItemId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "template_id", nullable = false)
     private Template template;
-
-    @ManyToOne
-    @JoinColumn(name = "icon_id")
-    private Icon icon;
 
     private String name;
 
     private String siteUrl;
 
-    private String location;
+    @Embedded
+    private TemplateItemPosition position;
 
     @Embedded
     private TemplateItemSize size;
+
+    @Embedded
+    private IconSnapshot icon;
 }

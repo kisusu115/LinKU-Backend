@@ -1,24 +1,22 @@
-package com.linku.backend.domain.template;
+package com.linku.backend.domain.postedtemplate;
 
 import com.linku.backend.domain.BaseEntity;
 import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "templates")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "posted_templates")
 @Getter @Setter
-public class Template extends BaseEntity {
+public class PostedTemplate extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long templateId;
+    private Long postedTemplateId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -26,10 +24,13 @@ public class Template extends BaseEntity {
 
     private String name;
 
-    private Integer height; // Template의 width는 6으로 고정
+    private Integer height;
+
+    private Integer likesCount = 0;
+    private Integer usageCount = 0;
 
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TemplateItem> items = new ArrayList<>();
+    @OneToMany(mappedBy = "postedTemplate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostedTemplateItem> items = new ArrayList<>();
 }
