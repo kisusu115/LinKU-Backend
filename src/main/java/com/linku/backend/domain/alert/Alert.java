@@ -1,6 +1,6 @@
 package com.linku.backend.domain.alert;
 
-import com.linku.backend.domain.BaseEntity;
+import com.linku.backend.domain.common.BaseEntity;
 import com.linku.backend.domain.page.Page;
 import jakarta.persistence.*;
 import lombok.Getter;

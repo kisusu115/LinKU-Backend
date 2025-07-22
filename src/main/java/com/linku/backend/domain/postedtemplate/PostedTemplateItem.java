@@ -1,9 +1,9 @@
 package com.linku.backend.domain.postedtemplate;
 
-import com.linku.backend.domain.BaseEntity;
-import com.linku.backend.domain.template.IconSnapshot;
-import com.linku.backend.domain.template.TemplateItemPosition;
-import com.linku.backend.domain.template.TemplateItemSize;
+import com.linku.backend.domain.common.BaseEntity;
+import com.linku.backend.domain.common.template.IconSnapshot;
+import com.linku.backend.domain.common.template.TemplateItemPosition;
+import com.linku.backend.domain.common.template.TemplateItemSize;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

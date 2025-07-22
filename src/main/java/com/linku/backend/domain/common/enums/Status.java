@@ -1,4 +1,4 @@
-package com.linku.backend.global.common.enums;
+package com.linku.backend.domain.common.enums;
 
 public enum Status {
     ACTIVE,

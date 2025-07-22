@@ -1,4 +1,4 @@
-package com.linku.backend.domain.template;
+package com.linku.backend.domain.common.template;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;

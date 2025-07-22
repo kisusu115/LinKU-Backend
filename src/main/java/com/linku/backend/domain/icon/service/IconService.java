@@ -5,7 +5,7 @@ import com.linku.backend.domain.icon.dto.response.IconResponseDTO;
 import com.linku.backend.domain.icon.repository.IconRepository;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
-import com.linku.backend.global.common.enums.Status;
+import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.global.exception.LinkuException;
 import com.linku.backend.global.response.ResponseCode;
 import com.linku.backend.global.util.ImageCompressor;

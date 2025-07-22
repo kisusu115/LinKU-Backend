@@ -1,6 +1,6 @@
-package com.linku.backend.domain;
+package com.linku.backend.domain.common;
 
-import com.linku.backend.global.common.enums.Status;
+import com.linku.backend.domain.common.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

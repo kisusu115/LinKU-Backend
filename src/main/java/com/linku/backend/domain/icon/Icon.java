@@ -1,6 +1,6 @@
 package com.linku.backend.domain.icon;
 
-import com.linku.backend.domain.BaseEntity;
+import com.linku.backend.domain.common.BaseEntity;
 import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
