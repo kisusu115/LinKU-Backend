@@ -1,17 +1,19 @@
 package com.linku.backend.domain.icon.service;
 
+import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.domain.icon.Icon;
-import com.linku.backend.domain.icon.dto.response.IconResponseDTO;
+import com.linku.backend.domain.icon.dto.IconDtoMapper;
+import com.linku.backend.domain.icon.dto.response.IconInfoResponse;
 import com.linku.backend.domain.icon.repository.IconRepository;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
-import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.global.exception.LinkuException;
 import com.linku.backend.global.response.ResponseCode;
 import com.linku.backend.global.util.ImageCompressor;
 import com.linku.backend.global.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,9 +29,11 @@ public class IconService {
 
     private final IconRepository iconRepository;
     private final UserRepository userRepository;
+    private final IconDtoMapper iconDtoMapper;
     private final S3Uploader s3Uploader;
 
-    public IconResponseDTO saveIconWithImageUpload(String iconName, MultipartFile file) {
+    @Transactional
+    public IconInfoResponse saveIconWithImageUpload(String iconName, MultipartFile file) {
         try {
             validateFile(file);
 
@@ -49,26 +53,28 @@ public class IconService {
             icon.setStatus(Status.ACTIVE);
 
             iconRepository.save(icon);
-
-            return IconResponseDTO.from(icon);
+            
+            return iconDtoMapper.toIconInfoResponse(icon);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw LinkuException.of(ResponseCode.ICON_UPLOAD_FAILED);
         }
     }
 
-    public List<IconResponseDTO> getUserIcons() {
+    @Transactional(readOnly = true)
+    public List<IconInfoResponse> getUserIcons() {
         Long userId = getCurrentUserId();
         List<Icon> icons = iconRepository.findAllByOwner_UserIdAndStatus(userId, Status.ACTIVE);
 
-        List<IconResponseDTO> responses = icons.stream()
-                .map(IconResponseDTO::from)
+        List<IconInfoResponse> responses = icons.stream()
+                .map(iconDtoMapper::toIconInfoResponse)
                 .collect(Collectors.toList());
 
         return responses;
     }
 
-    public IconResponseDTO renameIcon(Long iconId, String newName) {
+    @Transactional
+    public IconInfoResponse renameIcon(Long iconId, String newName) {
         Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
 
@@ -82,9 +88,10 @@ public class IconService {
         icon.setName(newName);
         iconRepository.save(icon);
 
-        return IconResponseDTO.from(icon);
+        return iconDtoMapper.toIconInfoResponse(icon);
     }
 
+    @Transactional
     public void deleteIcon(Long iconId) {
         Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
                 .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));

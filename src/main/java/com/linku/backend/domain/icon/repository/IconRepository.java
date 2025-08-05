@@ -10,6 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface IconRepository extends JpaRepository<Icon, Long> {
+
     List<Icon> findAllByOwner_UserIdAndStatus(Long userId, Status status);
+
     Optional<Icon> findByIconIdAndStatus(Long iconId, Status status);
 }

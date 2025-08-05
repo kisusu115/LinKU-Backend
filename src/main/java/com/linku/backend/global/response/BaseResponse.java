@@ -6,14 +6,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class BaseResponse<T> {
-    private final boolean isSuccess;
+    private final boolean success;
     private final int code;
     private final String message;
     private final T result;
 
-    public static <T> BaseResponse<T> of(boolean isSuccess, int code, String message, T result) {
+    public static <T> BaseResponse<T> of(boolean success, int code, String message, T result) {
         return new BaseResponse<>(
-                isSuccess,
+                success,
                 code,
                 message,
                 result

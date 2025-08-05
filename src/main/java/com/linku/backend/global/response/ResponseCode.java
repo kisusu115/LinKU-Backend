@@ -22,11 +22,12 @@ public enum ResponseCode {
     INVALID_INPUT_VALUE(false, 1005, "입력 값이 유효하지 않습니다."),
 
     // 2000 번대 : Icon 관련 요청 성공/실패
+    ICON_UPLOAD_FAILED(false, 2000, "아이콘 이미지 업로드 중 오류가 발생했습니다."),
     ICON_NOT_FOUND(false, 2001, "요청 iconId에 해당하는 아이콘이 없습니다."),
     ICON_NOT_OWNER(false, 2002, "작업 수행 대상 아이콘의 소유자가 아닙니다."),
     ICON_OVER_SIZE(false, 2003, "아이콘 이미지 파일이 최대 용량을 초과했습니다.");
 
-    private boolean isSuccess;
+    private boolean success;
     private int code;
     private String message;
 }

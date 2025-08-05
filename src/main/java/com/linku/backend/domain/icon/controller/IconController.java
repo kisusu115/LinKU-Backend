@@ -1,14 +1,14 @@
 package com.linku.backend.domain.icon.controller;
 
-import com.linku.backend.domain.icon.dto.request.IconNameRequestDTO;
-import com.linku.backend.domain.icon.dto.response.IconResponseDTO;
+import com.linku.backend.domain.icon.dto.request.IconRenameRequest;
+import com.linku.backend.domain.icon.dto.request.IconUploadRequest;
+import com.linku.backend.domain.icon.dto.response.IconInfoResponse;
 import com.linku.backend.domain.icon.service.IconService;
 import com.linku.backend.global.response.BaseResponse;
 import com.linku.backend.global.response.ResponseCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,37 +21,36 @@ public class IconController {
 
     @PostMapping
     public BaseResponse<?> uploadIcon(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("name") String iconName
+            @Valid @ModelAttribute IconUploadRequest request
     ) {
-        IconResponseDTO response = iconService.saveIconWithImageUpload(iconName, file);
+        IconInfoResponse createdIcon = iconService.saveIconWithImageUpload(request.getName(), request.getFile());
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
-                response
+                createdIcon
         );
     }
 
     @GetMapping
     public BaseResponse<?> getUserIcons() {
-        List<IconResponseDTO> responses = iconService.getUserIcons();
+        List<IconInfoResponse> icons = iconService.getUserIcons();
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
-                responses
+                icons
         );
     }
 
     @PutMapping("/{iconId}/rename")
     public BaseResponse<?> renameIcon(
             @PathVariable Long iconId,
-            @Valid @RequestBody IconNameRequestDTO requestDTO
+            @Valid @RequestBody IconRenameRequest request
     ) {
-        IconResponseDTO updatedResponse = iconService.renameIcon(iconId, requestDTO.getName());
+        IconInfoResponse renamedIcon = iconService.renameIcon(iconId, request.getName());
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
-                updatedResponse
+                renamedIcon
         );
     }
 
