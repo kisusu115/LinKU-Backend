@@ -34,6 +34,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (userRepository.count() == 0) {
             User masterUser = User.builder()
+                    .name("master")
                     .email(masterEmail)
                     .password(masterPassword)
                     .verified(true)
