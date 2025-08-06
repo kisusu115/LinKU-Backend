@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
@@ -32,5 +33,6 @@ public class Icon extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
+    @Builder.Default
     private Boolean isDefault = false;
 }

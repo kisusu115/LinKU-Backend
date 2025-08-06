@@ -1,15 +1,13 @@
 package com.linku.backend.domain.common.template;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
+@Builder
 public class TemplateItemPosition {
     private Integer x;
     private Integer y;

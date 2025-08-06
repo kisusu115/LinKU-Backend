@@ -6,10 +6,13 @@ import com.linku.backend.domain.common.template.TemplateItemPosition;
 import com.linku.backend.domain.common.template.TemplateItemSize;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "template_items")
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
@@ -34,4 +37,6 @@ public class TemplateItem extends BaseEntity {
 
     @Embedded
     private IconSnapshot icon;
+
+    private LocalDateTime deletedAt;
 }
