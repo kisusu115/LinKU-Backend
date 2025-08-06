@@ -3,13 +3,17 @@ package com.linku.backend.domain.icon;
 import com.linku.backend.domain.common.BaseEntity;
 import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "icons")
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter

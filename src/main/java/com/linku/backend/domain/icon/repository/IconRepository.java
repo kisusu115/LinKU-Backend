@@ -11,7 +11,9 @@ import java.util.Optional;
 @Repository
 public interface IconRepository extends JpaRepository<Icon, Long> {
 
+    Optional<Icon> findByIconIdAndStatus(Long iconId, Status status);
+
     List<Icon> findAllByOwner_UserIdAndStatus(Long userId, Status status);
 
-    Optional<Icon> findByIconIdAndStatus(Long iconId, Status status);
+    List<Icon> findAllByIsDefaultAndStatus(Boolean isDefault, Status status);
 }

@@ -31,9 +31,19 @@ public class IconController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/my")
     public BaseResponse<?> getUserIcons() {
         List<IconInfoResponse> icons = iconService.getUserIcons();
+
+        return BaseResponse.of(
+                ResponseCode.SUCCESS,
+                icons
+        );
+    }
+
+    @GetMapping("/default")
+    public BaseResponse<?> getDefaultIcons() {
+        List<IconInfoResponse> icons = iconService.getDefaultIcons();
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,

@@ -73,6 +73,17 @@ public class IconService {
         return responses;
     }
 
+    @Transactional(readOnly = true)
+    public List<IconInfoResponse> getDefaultIcons() {
+        List<Icon> icons = iconRepository.findAllByIsDefaultAndStatus(true, Status.ACTIVE);
+
+        List<IconInfoResponse> responses = icons.stream()
+                .map(iconDtoMapper::toIconInfoResponse)
+                .collect(Collectors.toList());
+
+        return responses;
+    }
+
     @Transactional
     public IconInfoResponse renameIcon(Long iconId, String newName) {
         Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
