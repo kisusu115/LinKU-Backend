@@ -5,6 +5,7 @@ import com.linku.backend.domain.template.dto.request.TemplateUpdateRequest;
 import com.linku.backend.domain.template.dto.response.TemplateListResponse;
 import com.linku.backend.domain.template.dto.response.TemplateResponse;
 import com.linku.backend.domain.template.service.TemplateService;
+import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateResponse;
 import com.linku.backend.global.response.BaseResponse;
 import com.linku.backend.global.response.ResponseCode;
 import jakarta.validation.Valid;
@@ -86,6 +87,18 @@ public class TemplateController {
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
                 null
+        );
+    }
+
+    @PostMapping("/{templateId}/post")
+    public BaseResponse<PostedTemplateResponse> postTemplate(
+            @PathVariable Long templateId
+    ) {
+        PostedTemplateResponse response = templateService.postTemplate(templateId);
+
+        return BaseResponse.of(
+                ResponseCode.SUCCESS,
+                response
         );
     }
 }

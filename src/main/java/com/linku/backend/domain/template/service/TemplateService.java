@@ -14,6 +14,12 @@ import com.linku.backend.domain.template.dto.TemplateItemPositionRequestMapper;
 import com.linku.backend.domain.template.dto.TemplateItemSizeRequestMapper;
 import com.linku.backend.domain.template.repository.TemplateRepository;
 import com.linku.backend.domain.template.repository.TemplateItemRepository;
+import com.linku.backend.domain.postedtemplate.PostedTemplate;
+import com.linku.backend.domain.postedtemplate.PostedTemplateItem;
+import com.linku.backend.domain.postedtemplate.dto.PostedTemplateItemMapper;
+import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateResponse;
+import com.linku.backend.domain.postedtemplate.repository.PostedTemplateRepository;
+import com.linku.backend.domain.postedtemplate.repository.PostedTemplateItemRepository;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
 import com.linku.backend.global.exception.LinkuException;
@@ -31,11 +37,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TemplateService {
 
+    private final UserRepository userRepository;
     private final TemplateRepository templateRepository;
     private final TemplateItemRepository templateItemRepository;
-    private final UserRepository userRepository;
+    private final PostedTemplateRepository postedTemplateRepository;
+    private final PostedTemplateItemRepository postedTemplateItemRepository;
 
     private final TemplateItemMapper templateItemMapper;
+    private final PostedTemplateItemMapper postedTemplateItemMapper;
     private final TemplateItemPositionRequestMapper templateItemPositionRequestMapper;
     private final TemplateItemSizeRequestMapper templateItemSizeRequestMapper;
     private final TemplateItemIconRequestMapper templateItemIconRequestMapper;
@@ -77,10 +86,7 @@ public class TemplateService {
             .name(template.getName())
             .height(template.getHeight())
             .cloned(Boolean.TRUE.equals(template.getCloned()))
-            .items(template.getItems().stream()
-                .filter(item -> item.getStatus() == Status.ACTIVE)
-                .map(templateItemMapper::toResponse)
-                .collect(Collectors.toList()))
+            .items(templateItemMapper.toResponseList(template.getItems()))
             .build();
     }
 
@@ -135,12 +141,11 @@ public class TemplateService {
                 .filter(Objects::nonNull)
                 .toList();
 
-        existingItems.stream()
+        List<TemplateItem> itemsToDelete = existingItems.stream()
                 .filter(item -> !requestIds.contains(item.getTemplateItemId()))
-                .forEach(item -> {
-                    item.setStatus(Status.DELETED);
-                    item.setDeletedAt(LocalDateTime.now());
-                });
+                .collect(Collectors.toList());
+        
+        templateItemRepository.deleteAll(itemsToDelete);
 
         for (TemplateItemUpdateRequest itemReq : request.getItems()) {
 
@@ -172,15 +177,14 @@ public class TemplateService {
             }
         }
 
+        List<TemplateItem> activeItems = templateItemRepository.findAllByTemplate_TemplateIdAndStatus(templateId, Status.ACTIVE);
+        
         return TemplateResponse.builder()
             .templateId(template.getTemplateId())
             .name(template.getName())
             .height(template.getHeight())
             .cloned(Boolean.TRUE.equals(template.getCloned()))
-            .items(template.getItems().stream()
-                .filter(item -> item.getStatus() == Status.ACTIVE)
-                .map(templateItemMapper::toResponse)
-                .collect(Collectors.toList()))
+            .items(templateItemMapper.toResponseList(activeItems))
             .build();
     }
 
@@ -212,11 +216,58 @@ public class TemplateService {
             .name(template.getName())
             .height(template.getHeight())
             .cloned(Boolean.TRUE.equals(template.getCloned()))
-            .items(template.getItems().stream()
-                .filter(item -> item.getStatus() == Status.ACTIVE)
-                .map(templateItemMapper::toResponse)
-                .collect(Collectors.toList()))
+            .items(templateItemMapper.toResponseList(template.getItems()))
             .build();
+    }
+
+    @Transactional
+    public PostedTemplateResponse postTemplate(Long templateId) {
+        Long userId = getCurrentUserId();
+
+        Template template = templateRepository.findByTemplateIdAndOwner_UserIdAndStatus(templateId, userId, Status.ACTIVE)
+                .orElseThrow(() -> LinkuException.of(ResponseCode.TEMPLATE_NOT_FOUND));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> LinkuException.of(ResponseCode.USER_NOT_FOUND));
+
+        PostedTemplate postedTemplate = PostedTemplate.builder()
+                .name(template.getName())
+                .height(template.getHeight())
+                .owner(user)
+                .likesCount(0)
+                .usageCount(0)
+                .status(Status.ACTIVE)
+                .build();
+
+        PostedTemplate savedPostedTemplate = postedTemplateRepository.save(postedTemplate);
+
+        List<TemplateItem> templateItems = templateItemRepository.findAllByTemplate_TemplateIdAndStatus(templateId, Status.ACTIVE);
+        
+        List<PostedTemplateItem> postedTemplateItems = templateItems.stream()
+                .map(templateItem -> PostedTemplateItem.builder()
+                        .postedTemplate(savedPostedTemplate)
+                        .name(templateItem.getName())
+                        .siteUrl(templateItem.getSiteUrl())
+                        .position(templateItem.getPosition())
+                        .size(templateItem.getSize())
+                        .icon(templateItem.getIcon())
+                        .status(Status.ACTIVE)
+                        .build())
+                .collect(Collectors.toList());
+
+        postedTemplateItemRepository.saveAll(postedTemplateItems);
+        savedPostedTemplate.setItems(postedTemplateItems);
+
+        return PostedTemplateResponse.builder()
+                .postedTemplateId(savedPostedTemplate.getPostedTemplateId())
+                .name(savedPostedTemplate.getName())
+                .ownerId(savedPostedTemplate.getOwner().getUserId())
+                .ownerName(savedPostedTemplate.getOwner().getName())
+                .height(savedPostedTemplate.getHeight())
+                .likesCount(savedPostedTemplate.getLikesCount())
+                .usageCount(savedPostedTemplate.getUsageCount())
+                .items(postedTemplateItemMapper.toResponseList(savedPostedTemplate.getItems()))
+                .build();
     }
 
     private Long getCurrentUserId() {

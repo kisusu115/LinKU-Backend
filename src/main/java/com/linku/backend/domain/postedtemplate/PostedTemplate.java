@@ -3,8 +3,8 @@ package com.linku.backend.domain.postedtemplate;
 import com.linku.backend.domain.common.BaseEntity;
 import com.linku.backend.domain.user.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +12,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "posted_templates")
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter @Setter
 public class PostedTemplate extends BaseEntity {
     @Id
@@ -26,7 +29,10 @@ public class PostedTemplate extends BaseEntity {
 
     private Integer height;
 
+    @Builder.Default
     private Integer likesCount = 0;
+
+    @Builder.Default
     private Integer usageCount = 0;
 
     private LocalDateTime deletedAt;

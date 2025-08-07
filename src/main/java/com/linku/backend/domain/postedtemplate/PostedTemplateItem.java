@@ -5,11 +5,14 @@ import com.linku.backend.domain.common.template.IconSnapshot;
 import com.linku.backend.domain.common.template.TemplateItemPosition;
 import com.linku.backend.domain.common.template.TemplateItemSize;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "posted_template_items")
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter @Setter
 public class PostedTemplateItem extends BaseEntity {
     @Id
