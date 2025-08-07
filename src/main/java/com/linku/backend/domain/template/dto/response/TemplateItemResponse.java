@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder
 public class TemplateItemResponse {
 
+    private Long templateItemId;
     private String name;
     private String siteUrl;
 
