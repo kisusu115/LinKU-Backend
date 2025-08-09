@@ -1,29 +1,32 @@
-package com.linku.backend.domain.template;
+package com.linku.backend.domain.postedtemplate;
 
 import com.linku.backend.domain.common.BaseEntity;
 import com.linku.backend.domain.common.template.IconSnapshot;
 import com.linku.backend.domain.common.template.TemplateItemPosition;
 import com.linku.backend.domain.common.template.TemplateItemSize;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "template_items")
+@Table(name = "posted_template_items")
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
-public class TemplateItem extends BaseEntity {
+public class PostedTemplateItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long templateItemId;
+    private Long postedTemplateItemId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id", nullable = false)
-    private Template template;
+    @JoinColumn(name = "posted_template_id", nullable = false)
+    private PostedTemplate postedTemplate;
 
     private String name;
 

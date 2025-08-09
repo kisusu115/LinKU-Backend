@@ -1,64 +1,132 @@
 package com.linku.backend.domain.icon.service;
 
+import com.linku.backend.domain.common.enums.Status;
 import com.linku.backend.domain.icon.Icon;
+import com.linku.backend.domain.icon.dto.IconDtoMapper;
+import com.linku.backend.domain.icon.dto.response.IconInfoResponse;
 import com.linku.backend.domain.icon.repository.IconRepository;
-import com.linku.backend.global.response.BaseResponse;
+import com.linku.backend.domain.user.User;
+import com.linku.backend.domain.user.repository.UserRepository;
+import com.linku.backend.global.exception.LinkuException;
 import com.linku.backend.global.response.ResponseCode;
 import com.linku.backend.global.util.ImageCompressor;
 import com.linku.backend.global.util.S3Uploader;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.linku.backend.global.common.enums.Status.ACTIVE;
-
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class IconService {
+
     private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
-    private final S3Uploader s3Uploader;
     private final IconRepository iconRepository;
+    private final UserRepository userRepository;
+    private final IconDtoMapper iconDtoMapper;
+    private final S3Uploader s3Uploader;
 
-    public ResponseEntity<BaseResponse<String>> saveIconWithImageUpload(String iconName, MultipartFile multipartFile) {
+    @Transactional
+    public IconInfoResponse saveIconWithImageUpload(String iconName, MultipartFile file) {
         try {
-            validateFileSize(multipartFile);
+            validateFile(file);
 
-            byte[] compressedImage = compressImage(multipartFile);
-            String imgUrl = uploadToS3(compressedImage, multipartFile);
+            byte[] compressedImage = ImageCompressor.resizeAndCompress(file);
+            String imgUrl = s3Uploader.uploadFile(compressedImage, file.getOriginalFilename(), file.getContentType());
 
-            saveIconEntity(iconName, imgUrl);
+            Long userId = getCurrentUserId();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> LinkuException.of(ResponseCode.USER_NOT_FOUND));
 
-            return ResponseEntity.ok(new BaseResponse<>(ResponseCode.SUCCESS, "아이콘 업로드 성공, URL: " + imgUrl));
-        } catch (Exception e) {
-            return ResponseEntity.status(400)
-                    .body(new BaseResponse<>(ResponseCode.FAILURE, "아이콘 업로드 실패"));
+            Icon icon = Icon.builder()
+                    .name(iconName)
+                    .imageUrl(imgUrl)
+                    .owner(user)
+                    .isDefault(false)
+                    .build();
+            icon.setStatus(Status.ACTIVE);
+
+            iconRepository.save(icon);
+            
+            return iconDtoMapper.toIconInfoResponse(icon);
+
+        } catch (IOException e) {
+            throw LinkuException.of(ResponseCode.ICON_UPLOAD_FAILED);
         }
     }
 
-    private void validateFileSize(MultipartFile multipartFile) {
-        if (multipartFile.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException("이미지 용량 초과 (최대 20MB)");
+    @Transactional(readOnly = true)
+    public List<IconInfoResponse> getUserIcons() {
+        Long userId = getCurrentUserId();
+        List<Icon> icons = iconRepository.findAllByOwner_UserIdAndStatus(userId, Status.ACTIVE);
+
+        List<IconInfoResponse> responses = icons.stream()
+                .map(iconDtoMapper::toIconInfoResponse)
+                .collect(Collectors.toList());
+
+        return responses;
+    }
+
+    @Transactional(readOnly = true)
+    public List<IconInfoResponse> getDefaultIcons() {
+        List<Icon> icons = iconRepository.findAllByIsDefaultAndStatus(true, Status.ACTIVE);
+
+        List<IconInfoResponse> responses = icons.stream()
+                .map(iconDtoMapper::toIconInfoResponse)
+                .collect(Collectors.toList());
+
+        return responses;
+    }
+
+    @Transactional
+    public IconInfoResponse renameIcon(Long iconId, String newName) {
+        Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
+                .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
+
+        Long userId = getCurrentUserId();
+        User owner = icon.getOwner();
+
+        if(!userId.equals(owner.getUserId())){
+            throw LinkuException.of(ResponseCode.ICON_NOT_OWNER);
         }
-    }
 
-    private byte[] compressImage(MultipartFile multipartFile) throws IOException {
-        return ImageCompressor.resizeAndCompress(multipartFile);
-    }
-
-    private String uploadToS3(byte[] imageData, MultipartFile multipartFile) {
-        return s3Uploader.uploadFile(imageData, multipartFile.getOriginalFilename(), multipartFile.getContentType());
-    }
-
-    private void saveIconEntity(String iconName, String imgUrl) {
-        Icon icon = Icon.builder()
-                .name(iconName)
-                .url(imgUrl)
-                .build();
-        icon.setStatus(ACTIVE);
+        icon.setName(newName);
         iconRepository.save(icon);
+
+        return iconDtoMapper.toIconInfoResponse(icon);
+    }
+
+    @Transactional
+    public void deleteIcon(Long iconId) {
+        Icon icon = iconRepository.findByIconIdAndStatus(iconId, Status.ACTIVE)
+                .orElseThrow(() -> LinkuException.of(ResponseCode.ICON_NOT_FOUND));
+
+        Long userId = getCurrentUserId();
+        User owner = icon.getOwner();
+
+        if(!userId.equals(owner.getUserId())){
+            throw LinkuException.of(ResponseCode.ICON_NOT_OWNER);
+        }
+
+        icon.setStatus(Status.DELETED);
+        icon.setDeletedAt(LocalDateTime.now());
+        iconRepository.save(icon);
+    }
+
+    private void validateFile(MultipartFile file) {
+        if (file.isEmpty() || file.getSize() > MAX_FILE_SIZE) {
+            throw LinkuException.of(ResponseCode.ICON_OVER_SIZE);
+        }
+    }
+
+    private Long getCurrentUserId() {
+        // TODO 인증&인가 측 구현 완료 후 SecurityContext 기반 사용자 ID 반환 로직 추가
+        return 1L;
     }
 }
