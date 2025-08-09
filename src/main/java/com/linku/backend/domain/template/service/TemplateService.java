@@ -1,25 +1,25 @@
 package com.linku.backend.domain.template.service;
 
 import com.linku.backend.domain.common.enums.Status;
-import com.linku.backend.domain.template.Template;
-import com.linku.backend.domain.template.TemplateItem;
-import com.linku.backend.domain.template.dto.request.TemplateCreateRequest;
-import com.linku.backend.domain.template.dto.request.TemplateItemUpdateRequest;
-import com.linku.backend.domain.template.dto.request.TemplateUpdateRequest;
-import com.linku.backend.domain.template.dto.response.TemplateListResponse;
-import com.linku.backend.domain.template.dto.response.TemplateResponse;
-import com.linku.backend.domain.template.dto.TemplateItemMapper;
-import com.linku.backend.domain.template.dto.TemplateItemIconRequestMapper;
-import com.linku.backend.domain.template.dto.TemplateItemPositionRequestMapper;
-import com.linku.backend.domain.template.dto.TemplateItemSizeRequestMapper;
-import com.linku.backend.domain.template.repository.TemplateRepository;
-import com.linku.backend.domain.template.repository.TemplateItemRepository;
 import com.linku.backend.domain.postedtemplate.PostedTemplate;
 import com.linku.backend.domain.postedtemplate.PostedTemplateItem;
 import com.linku.backend.domain.postedtemplate.dto.PostedTemplateItemMapper;
 import com.linku.backend.domain.postedtemplate.dto.response.PostedTemplateResponse;
 import com.linku.backend.domain.postedtemplate.repository.PostedTemplateRepository;
-import com.linku.backend.domain.postedtemplate.repository.PostedTemplateItemRepository;
+import com.linku.backend.domain.template.Template;
+import com.linku.backend.domain.template.TemplateItem;
+import com.linku.backend.domain.template.dto.TemplateItemIconRequestMapper;
+import com.linku.backend.domain.template.dto.TemplateItemMapper;
+import com.linku.backend.domain.template.dto.TemplateItemPositionRequestMapper;
+import com.linku.backend.domain.template.dto.TemplateItemSizeRequestMapper;
+import com.linku.backend.domain.template.dto.request.TemplateCreateRequest;
+import com.linku.backend.domain.template.dto.request.TemplateItemUpdateRequest;
+import com.linku.backend.domain.template.dto.request.TemplateUpdateRequest;
+import com.linku.backend.domain.template.dto.response.TemplateListResponse;
+import com.linku.backend.domain.template.dto.response.TemplateResponse;
+import com.linku.backend.domain.template.repository.TemplateItemRepository;
+import com.linku.backend.domain.template.repository.TemplateRepository;
+import com.linku.backend.domain.template.util.TemplateValidator;
 import com.linku.backend.domain.user.User;
 import com.linku.backend.domain.user.repository.UserRepository;
 import com.linku.backend.global.exception.LinkuException;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TemplateService {
 
-    private final String DEFAULT_SORT_TYPE = "newest";
+    private static final String DEFAULT_SORT_TYPE = "newest";
 
     private final UserRepository userRepository;
     private final TemplateRepository templateRepository;
@@ -50,10 +50,13 @@ public class TemplateService {
     private final TemplateItemPositionRequestMapper templateItemPositionRequestMapper;
     private final TemplateItemSizeRequestMapper templateItemSizeRequestMapper;
     private final TemplateItemIconRequestMapper templateItemIconRequestMapper;
+    private final TemplateValidator templateValidator;
 
     @Transactional
     public TemplateResponse createTemplate(TemplateCreateRequest request) {
         User user = validateAndGetUser(getCurrentUserId());
+
+        templateValidator.validateTemplateItemsForCreate(request.getHeight(), request.getItems());
 
         Template newTemplate = createNewTemplate(request, user);
         List<TemplateItem> newItems = createNewTemplateItems(request, newTemplate);
@@ -87,6 +90,9 @@ public class TemplateService {
     @Transactional
     public TemplateResponse updateTemplate(Long templateId, TemplateUpdateRequest request) {
         Template template = validateAndGetTemplate(templateId, getCurrentUserId());
+
+        templateValidator.validateTemplateItemsForUpdate(request.getHeight(), request.getItems());
+
         updateTemplateBasicInfo(template, request);
         updateTemplateItems(template, request);
         

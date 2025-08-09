@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostedTemplateService {
 
-    private final String DEFAULT_SORT_TYPE = "newest";
+    private static final String DEFAULT_SORT_TYPE = "newest";
 
     private final UserRepository userRepository;
     private final TemplateRepository templateRepository;
