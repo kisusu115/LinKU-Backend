@@ -35,6 +35,7 @@ public class PostedTemplate extends BaseEntity {
     @Builder.Default
     private Integer usageCount = 0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "postedTemplate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostedTemplateItem> items = new ArrayList<>();
 
