@@ -29,7 +29,10 @@ public enum ResponseCode {
 
     // 3000 번대 : Template 관련 요청 성공/실패
     TEMPLATE_NOT_FOUND(false, 3001, "요청 templateId에 해당하는 템플릿이 없습니다."),
-    TEMPLATE_ITEM_NOT_FOUND(false, 3002, "요청 templateItemId에 해당하는 템플릿 아이템이 없습니다.");
+    TEMPLATE_ITEM_NOT_FOUND(false, 3002, "요청 templateItemId에 해당하는 템플릿 아이템이 없습니다."),
+
+    // 4000 번대 : PostedTemplate 관련 요청 성공/실패
+    POSTED_TEMPLATE_NOT_FOUND(false, 4001, "요청 postedTemplateId에 해당하는 게시된 템플릿이 없습니다.");
 
     private boolean success;
     private int code;

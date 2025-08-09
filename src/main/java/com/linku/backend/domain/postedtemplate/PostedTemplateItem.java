@@ -5,8 +5,13 @@ import com.linku.backend.domain.common.template.IconSnapshot;
 import com.linku.backend.domain.common.template.TemplateItemPosition;
 import com.linku.backend.domain.common.template.TemplateItemSize;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "posted_template_items")
@@ -35,4 +40,6 @@ public class PostedTemplateItem extends BaseEntity {
 
     @Embedded
     private IconSnapshot icon;
+
+    private LocalDateTime deletedAt;
 }
