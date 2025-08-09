@@ -34,8 +34,11 @@ public class TemplateController {
     }
 
     @GetMapping("/owned")
-    public BaseResponse<List<TemplateListResponse>> getOwnedTemplates() {
-        List<TemplateListResponse> response = templateService.getOwnedTemplates();
+    public BaseResponse<List<TemplateListResponse>> getOwnedTemplates(
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String query
+    ) {
+        List<TemplateListResponse> response = templateService.getOwnedTemplates(sort, query);
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
@@ -44,8 +47,11 @@ public class TemplateController {
     }
 
     @GetMapping("/cloned")
-    public BaseResponse<List<TemplateListResponse>> getClonedTemplates() {
-        List<TemplateListResponse> response = templateService.getClonedTemplates();
+    public BaseResponse<List<TemplateListResponse>> getClonedTemplates(
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String query
+    ) {
+        List<TemplateListResponse> response = templateService.getClonedTemplates(sort, query);
 
         return BaseResponse.of(
                 ResponseCode.SUCCESS,
